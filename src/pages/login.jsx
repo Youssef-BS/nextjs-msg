@@ -3,12 +3,25 @@ import Image from "next/image";
 import { FcGoogle } from "react-icons/fc";
 import {GoogleAuthProvider , signInWithPopup } from "firebase/auth"
 import { firebaseAuth } from "@/utils/FirebaseConfig";
+import axios from "axios";
+import { CHECK_USER_ROUTE } from "@/utils/ApiRoutes";
 
 function Login() {
   const handleLogin = async ()=> {
     const provider = new GoogleAuthProvider();
-    const {user} = await signInWithPopup(firebaseAuth , provider);
-    console.log(user);
+    const {
+      user : {
+      displayName : name , email , photoUrl : profileImage },
+    } = await signInWithPopup(firebaseAuth , provider);
+    try {
+    if(email){
+      const {data} = await axios.post(CHECK_USER_ROUTE , {email})
+      console.log({data});
+      
+    }
+    }catch(err){
+     console.log(err) 
+    }
   }
 
   return (
