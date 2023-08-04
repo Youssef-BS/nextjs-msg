@@ -1,9 +1,33 @@
 import React,{useState} from "react";
 import Image from "next/image"
 import {FaCamera} from "react-icons/fa"
+import ContextMenu from "./ContextMenu";
 
 function Avatar({type , image , setImage}) {
   const[hover , setHover] = useState(false);
+  const [isContextMenuVisible , setIsContextMenuVisible] = useState(false);
+  const [contextMenuCordinates, setContextMenuCordinates] = useState({
+    x:0,
+    y:0,
+  });
+
+const [grapPhoto, setGrapPhoto] = useState(false);
+  const showContextMenu = (e)=>{
+    e.preventDefault();
+    setIsContextMenuVisible(true);
+    setContextMenuCordinates({ x : e.pageX , y : e.pageY }
+    );
+  }
+const contextMenuOptions = [
+  {name : "Take Photo" , callback : ()=>{}},
+  {name : "Choose From Library" , callback : ()=>{}},
+  {name : "Upload Photo" , callback : ()=>{
+    setGrapPhoto(true);
+  }},
+  {name : "Remove Photo" , callback : ()=>{
+    setImage("/default__avatar.png")
+  }},
+]
   return <>
   <div className="flex items-center justify-center">
   
@@ -20,9 +44,18 @@ function Avatar({type , image , setImage}) {
     >
       <div className={`z-10 bg-photopicker-overlay-background h-60 w-60 absolute top-0 left-0 flex items-center rounded-full justify-center flex-col text-center gap-2 
       ${hover ? "visible" : "hidden"}
-      `}>
-        <FaCamera className="text-2xl" id="context-opener"/>
-        <span>Change <br /> Profile <br /> Photo</span>
+      `}
+      onClick={e=>showContextMenu(e)}
+      id ="context-opener"
+      >
+        <FaCamera className="text-2xl" 
+        id="context-opener"
+        onClick={e=>showContextMenu(e)
+        }
+        />
+        <span onClick={e=>showContextMenu(e)}
+        id="context-opener"
+        >Change <br /> Profile <br /> Photo</span>
       </div>
   <div className="flex items-center justify-center h-60 w-60 ">
   <Image src={image} alt="avatar" className="rounded-full" fill/>
@@ -31,6 +64,16 @@ function Avatar({type , image , setImage}) {
   )}
   
   </div>
+  {
+    isContextMenuVisible && (
+      <ContextMenu 
+      options={contextMenuOptions}
+      cordinates={contextMenuCordinates}
+      ContextMenu={isContextMenuVisible}
+      setContextMenu={setIsContextMenuVisible}
+      />
+    
+ )}
   </>;
 }
 
