@@ -1,7 +1,9 @@
-import React,{useState} from "react";
+import React,{useState,useEffect} from "react";
 import Image from "next/image"
 import {FaCamera} from "react-icons/fa"
 import ContextMenu from "./ContextMenu";
+import PhotoPicker from "./PhotoPicker";
+import PhotoLibrary from "./PhotoLibrary";
 
 function Avatar({type , image , setImage}) {
   const[hover , setHover] = useState(false);
@@ -12,22 +14,59 @@ function Avatar({type , image , setImage}) {
   });
 
 const [grapPhoto, setGrapPhoto] = useState(false);
+const [showPhotoLibrary, setShowPhotoLibrary] = useState(false);
   const showContextMenu = (e)=>{
     e.preventDefault();
     setIsContextMenuVisible(true);
     setContextMenuCordinates({ x : e.pageX , y : e.pageY }
     );
   }
+
+useEffect(()=>{
+if(grapPhoto){
+  const data = document.getElementById("photo-picker");
+  data.click();
+  document.body.onfocus  = (e)=>{
+    setTimeout(()=>{
+      setGrapPhoto(false);
+    },1000);
+    
+  }
+}
+},[grapPhoto])
+
 const contextMenuOptions = [
   {name : "Take Photo" , callback : ()=>{}},
-  {name : "Choose From Library" , callback : ()=>{}},
+  {name : "Choose From Library" , callback : ()=>{
+    setShowPhotoLibrary(true);
+  }},
   {name : "Upload Photo" , callback : ()=>{
     setGrapPhoto(true);
   }},
   {name : "Remove Photo" , callback : ()=>{
-    setImage("/default__avatar.png")
-  }},
-]
+    setImage("/default_avatar.png")
+  }
+},
+];
+
+const photoPickerChange = async(e) =>{
+const file = e.target.files[0];
+const reader = new FileReader();
+const data = document.createElement("img");
+
+reader.onload = function(event){
+  data.src = event.target.result;
+  data.setAttribute("data-src", event.target.result);
+};
+
+reader.readAsDataURL(file);
+setTimeout(()=>{
+  console.log(data.src);
+setImage(data.src);
+},100)
+
+}
+
   return <>
   <div className="flex items-center justify-center">
   
@@ -74,6 +113,11 @@ const contextMenuOptions = [
       />
     
  )}
+ {showPhotoLibrary && <PhotoLibrary 
+ setImage={setImage} 
+ hidePhotoLibrary={setShowPhotoLibrary}
+ />}
+ {grapPhoto && <PhotoPicker onChange={photoPickerChange}/>}
   </>;
 }
 
